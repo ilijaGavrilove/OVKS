@@ -79,3 +79,25 @@ def _load_adjacency_matrix(lines):
             if matrix[i][j] != 0:
                 G.add_edge(nodes[i], nodes[j], weight=matrix[i][j])
     return G
+
+def compute_layout(G, method='auto', center_node=None):
+    """
+    Автоматически выбирает и применяет лучший метод визуализации.
+    Пользователь может принудительно задать 'sugiyama' или 'radial',
+    но по умолчанию ('auto') программа анализирует топологию сама.
+    """
+    if method == 'auto':
+        # Автоматическое определение (как в visualize_network)
+        degrees = dict(G.degree())
+        if len(G) > 2 and max(degrees.values()) == len(G) - 1 \
+                and list(degrees.values()).count(1) == len(G) - 1:
+            method = 'radial'
+        else:
+            method = 'sugiyama'
+    
+    if method == 'radial':
+        return radial_layout(G, center_node)
+    else:  # sugiyama
+        layout = SugiyamaLayout(G)
+        layout.run()
+        return layout.positions
