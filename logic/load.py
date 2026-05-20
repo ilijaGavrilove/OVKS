@@ -1,5 +1,6 @@
 import json
 import networkx as nx
+from logic import sugiyama_layout, radial_layout
 
 def load_graph(file_path):
     """
@@ -96,8 +97,8 @@ def compute_layout(G, method='auto', center_node=None):
             method = 'sugiyama'
     
     if method == 'radial':
-        return radial_layout(G, center_node)
+        return radial_layout.radial_layout(G, center_node)
     else:  # sugiyama
-        layout = SugiyamaLayout(G)
+        layout = sugiyama_layout.SugiyamaLayout(G)
         layout.run()
         return layout.positions
