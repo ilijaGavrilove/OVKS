@@ -1,0 +1,10 @@
+{
+  "nodes": ["Core1", "Core2", "Dist1", "Dist2", "Acc1", "Acc2", "Acc3"],
+  "edges": [
+    ["Core1", "Dist1"], ["Core1", "Dist2"],
+    ["Core2", "Dist1"], ["Core2", "Dist2"],
+    ["Dist1", "Acc1"], ["Dist1", "Acc2"],
+    ["Dist2", "Acc2"], ["Dist2", "Acc3"]
+  ],
+  "directed": false
+}
