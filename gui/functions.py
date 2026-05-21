@@ -2,6 +2,7 @@ from config import root
 import tkinter as tk
 from tkinter import filedialog
 import sys
+import webbrowser
 from pathlib import Path
 sys.path.append(str(Path(__file__).resolve().parent.parent))
 from logic import load, visualize
@@ -11,9 +12,10 @@ def upload_file():
     file_path = filedialog.askopenfilename()
     if file_path:
         G = load.load_graph(file_path)          # получаем граф
-        positions = load.compute_layout(G, method=method)    # считаем позиции TODO: добавить логику выбора метода
-        visualize.visualize_network(G, positions)       # строим интерактивную схему
-        
+        print(method.get())
+        positions = load.compute_layout(G, method=method.get())    # считаем позиции TODO: добавить логику выбора метода
+        visualize.visualize_network(G, positions, output_path='network_viz.html')       # строим интерактивную схему
+        webbrowser.open('./network_viz.html', new=0, autoraise=True)
 
 def main_menu():
     from buttons import upload_file_btn, info_btn, sugiyama_btn, radial_btn, auto_btn
