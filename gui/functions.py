@@ -7,11 +7,13 @@ sys.path.append(str(Path(__file__).resolve().parent.parent))
 from logic import load, visualize
 
 def upload_file():
+    from buttons import method
     file_path = filedialog.askopenfilename()
     if file_path:
         G = load.load_graph(file_path)          # получаем граф
-        positions = load.compute_layout(G)    # считаем позиции TODO: добавить логику выбора метода
+        positions = load.compute_layout(G, method=method)    # считаем позиции TODO: добавить логику выбора метода
         visualize.visualize_network(G, positions)       # строим интерактивную схему
+        
 
 def main_menu():
     from buttons import upload_file_btn, info_btn, sugiyama_btn, radial_btn, auto_btn
