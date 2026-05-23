@@ -18,4 +18,3 @@ auto_btn = ttk.Radiobutton(text="Авто (рекомендуется)", value="
 
 
 info_btn = Button(root, text="Справка", fg = "black", command=get_info)
-back_btn = Button(root, text="Назад", fg = "black", command=go_back)

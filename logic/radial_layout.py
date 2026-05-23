@@ -1,4 +1,5 @@
 from collections import defaultdict
+import numpy as np
 
 def radial_layout(G, center_node=None):
     """Радиальная укладка для графов с явным центром."""

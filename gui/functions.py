@@ -1,6 +1,6 @@
 from config import root
 import tkinter as tk
-from tkinter import filedialog
+from tkinter import filedialog, Button
 import sys
 import webbrowser
 from pathlib import Path
@@ -13,7 +13,7 @@ def upload_file():
     if file_path:
         G = load.load_graph(file_path)          # получаем граф
         print(method.get())
-        positions = load.compute_layout(G, method=method.get())    # считаем позиции TODO: добавить логику выбора метода
+        positions = load.compute_layout(G, method=method.get())    # считаем позиции
         visualize.visualize_network(G, positions, output_path='network_viz.html')       # строим интерактивную схему
         webbrowser.open('./network_viz.html', new=0, autoraise=True)
 
@@ -41,8 +41,11 @@ def main_menu():
     upload_file_btn.pack()
     info_btn.pack()
 
+def go_back(current_win):
+    current_win.destroy()
+    root.deiconify()
+
 def get_info():
-    from buttons import back_btn
     root.withdraw()
     info_win = tk.Toplevel(root)
     info_win.title("Справка")
@@ -61,11 +64,17 @@ def get_info():
     text.pack(expand=True, fill='both', padx=10, pady=10)
 
     text.config(state='normal')
-    text.insert('1.0', "Добро пожаловать в систему ОВКС!\nВыберите файл формата *.json, *.txt или *.csv\nЧтобы ознакомиться с допустимой структурой файлов, нажмите \"Справка\"")
+    text.insert('1.0', """
+Кнопка "Загрузить файл" загружает описание топологии из файла.
+Поддерживаемые форматы:
+- txt: список связей между узлами (каждая строка: u v [вес])
+- csv: матрица смежности (первая строка - заголовки узлов)
+- json: список узлов и связей, например:
+{"nodes": [id1, id2, ...], "edges": 
+[[u, v, w], ...], "directed": true/false}
+Поле directed в json определяет направленность или ненаправленность 
+графа сети.                
+""")
     text.config(state='disabled')
-
+    back_btn = Button(info_win, text="Назад", fg = "black", command=lambda: go_back(info_win))
     back_btn.pack()
-
-def go_back(current_win):
-    current_win.destroy()
-    root.deiconify() 
