@@ -18,16 +18,30 @@ def load_graph(file_path):
     if ext == 'json':
         with open(file_path, 'r') as f:
             data = json.load(f)
+
         directed = data.get('directed', False)
         G = nx.DiGraph() if directed else nx.Graph()
-        G.add_nodes_from(data['nodes'])
-        for edge in data['edges']:
-            if len(edge) == 3:
-                u, v, w = edge
-                G.add_edge(u, v, weight=w)
+
+        for node_data in data['nodes']:
+            # Поддержка двух форматов:
+            if isinstance(node_data, str):
+                # Старый формат: просто имя узла
+                node_id = node_data
+                node_type = 'default'
+            elif isinstance(node_data, dict):
+                # Новый формат: {"id": "Router1", "type": "router"}
+                node_id = node_data['id']
+                node_type = node_data.get('type', 'default')
             else:
-                u, v = edge
-                G.add_edge(u, v)
+                raise ValueError(f"Неверный формат узла: {node_data}")
+        
+            G.add_node(node_id, type=node_type)
+
+        for edge in data['edges']:
+            u, v = edge[0], edge[1]
+            weight = edge[2] if len(edge) > 2 else 1.0
+            G.add_edge(u, v, weight=weight)
+
         return G
 
     elif ext in ['txt', 'csv']:

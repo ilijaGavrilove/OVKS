@@ -1,5 +1,13 @@
 {
-  "nodes": ["Core1", "Core2", "Dist1", "Dist2", "Acc1", "Acc2", "Acc3"],
+  "nodes": [
+    {"id" : "Core1", "type": "pc"}, 
+    {"id" : "Core2", "type": "switch"}, 
+    {"id": "Dist1"},
+    {"id": "Dist2"},
+    {"id": "Acc1"}, 
+    {"id": "Acc2"}, 
+    {"id": "Acc3"}
+  ],
   "edges": [
     ["Core1", "Dist1"], ["Core1", "Dist2"],
     ["Core2", "Dist1"], ["Core2", "Dist2"],
