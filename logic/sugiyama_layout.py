@@ -243,27 +243,3 @@ class SugiyamaLayout:
                 points.append((x_mid, y))
             points.append(self.positions[v])
             self.edge_paths[(u, v)] = points
-
-    # ----------------------------------------------
-    # ВИЗУАЛИЗАЦИЯ
-    # ----------------------------------------------
-    def draw(self, title="Визуализация компьютерной сети (метод Сугиямы)"):
-        """Отрисовывает граф с использованием matplotlib."""
-        fig, ax = plt.subplots(figsize=(12, 8))
-        
-        # Рисуем рёбра полилиниями
-        for (u, v), path in self.edge_paths.items():
-            xs = [p[0] for p in path]
-            ys = [p[1] for p in path]
-            ax.plot(xs, ys, 'k-', linewidth=1.2, alpha=0.7, zorder=1)
-        
-        # Рисуем узлы
-        for node, (x, y) in self.positions.items():
-            ax.scatter(x, y, s=500, c='lightblue', edgecolors='navy', zorder=2)
-            ax.text(x, y, str(node), ha='center', va='center', fontsize=9, zorder=3)
-        
-        ax.set_title(title, fontsize=14)
-        ax.axis('equal')
-        ax.axis('off')
-        plt.tight_layout()
-        return fig, ax
