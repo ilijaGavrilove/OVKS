@@ -60,6 +60,10 @@ def visualize_network(G, positions, output_path="network_viz.html", scale=150):
 
     net.save_graph(output_path)
 
+    if not os.path.isabs(output_path):
+    # Сохраняем в папку Documents текущего пользователя
+        home = os.path.expanduser("~")
+        output_path = os.path.join(home, "Documents", output_path)
     # Патч: добавляем принудительный fit после загрузки страницы
     with open(output_path, 'a') as f:
         f.write('''

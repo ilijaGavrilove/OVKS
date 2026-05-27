@@ -12,6 +12,7 @@ networkx = "^3.6.1"
 matplotlib = "^3.10.9"
 pyqt6 = "^6.11.0"
 pyvis = "^0.3.2"
+pyvis-network = "^0.0.6"
 
 
 [build-system]

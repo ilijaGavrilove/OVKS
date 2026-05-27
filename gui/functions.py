@@ -6,16 +6,27 @@ import webbrowser
 from pathlib import Path
 sys.path.append(str(Path(__file__).resolve().parent.parent))
 from logic import load, visualize
+import os 
 
 def upload_file():
     from buttons import method
+    
     file_path = filedialog.askopenfilename()
     if file_path:
         G = load.load_graph(file_path)          # получаем граф
         print(method.get())
         positions = load.compute_layout(G, method=method.get())    # считаем позиции
         visualize.visualize_network(G, positions, output_path='network_viz.html')       # строим интерактивную схему
-        webbrowser.open('./network_viz.html', new=0, autoraise=True)
+        
+        if sys.platform.startswith('win'):
+            html_path = ''
+            current_file_path = os.path.abspath(__file__).split('\\')
+            for i in range(len(current_file_path) - 2):
+                html_path += f'{current_file_path[i]}\\'
+            html_path += 'network_viz.html'    
+            webbrowser.open(html_path, new=0, autoraise=True)
+        else:    
+            webbrowser.open('./network_viz.html', new=0, autoraise=True)
 
 def main_menu():
     from buttons import upload_file_btn, info_btn, sugiyama_btn, radial_btn, auto_btn
