@@ -3,6 +3,8 @@ import tkinter as tk
 from tkinter import filedialog, Button
 import sys
 import webbrowser
+from tkinter import messagebox
+from json import JSONDecodeError
 from pathlib import Path
 sys.path.append(str(Path(__file__).resolve().parent.parent))
 from logic import load, visualize
@@ -11,13 +13,30 @@ import os
 def upload_file():
     from buttons import method
     
-    file_path = filedialog.askopenfilename()
+    file_path = filedialog.askopenfilename(filetypes=(
+        ("Исходный файл JSON", "*.json"),
+        ("Текстовый документ", "*.txt"),
+        ("Excel.CSV", "*.csv")
+    ))
     if file_path:
-        G = load.load_graph(file_path)          # получаем граф
-        print(method.get())
-        positions = load.compute_layout(G, method=method.get())    # считаем позиции
-        visualize.visualize_network(G, positions, output_path='network_viz.html')       # строим интерактивную схему
+        try:
+            G = load.load_graph(file_path)          # получаем граф
+            print(method.get())
+            positions = load.compute_layout(G, method=method.get())    # считаем позиции
+            visualize.visualize_network(G, positions, output_path='network_viz.html')       # строим интерактивную схему
 
+        except JSONDecodeError:
+            messagebox.showerror("Ошибка", "Ошибка структуры JSON!")
+            return
+
+        except ValueError:
+            messagebox.showerror("Ошибка", "Ошибка! Неподдерживаемый тип файла!")
+            return
+
+        except KeyError as e:
+            messagebox.showerror("Ошибка", f"Ошибка структуры файла!\nНе найдено поле {e}")
+            return    
+           
         if sys.platform.startswith('win'):
             html_path = ''
             current_file_path = os.path.abspath(__file__).split('\\')
