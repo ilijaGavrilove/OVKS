@@ -5,7 +5,7 @@ from tkinter import Tk
 root = Tk()
 
 # заголовок
-root.title("ОВКС")
+root.title("ССКС")
 
 # размеры
 root.geometry('350x600')
