@@ -65,7 +65,7 @@ def main_menu():
     text.pack(expand=True, fill='both', padx=10, pady=10)
 
     text.config(state='normal')
-    text.insert('1.0', "Добро пожаловать в систему ОВКС!\nВыберите файл формата *.json, *.txt или *.csv\nЧтобы ознакомиться с допустимой структурой файлов, нажмите \"Справка\"")
+    text.insert('1.0', "Добро пожаловать в систему ССКС!\nВыберите файл формата *.json, *.txt или *.csv\nЧтобы ознакомиться с допустимой структурой файлов, нажмите \"Справка\"")
     text.config(state='disabled')
 
     upload_file_btn.pack()
