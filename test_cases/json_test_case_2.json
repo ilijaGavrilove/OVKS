@@ -1,0 +1,24 @@
+{
+  "nodes": [
+    {"id": "Center", "type": "router"},
+    {"id": "Node1", "type": "pc"},
+    {"id": "Node2", "type": "pc"},
+    {"id": "Node3", "type": "pc"},
+    {"id": "Node4", "type": "pc"},
+    {"id": "Node5", "type": "pc"},
+    {"id": "Node6", "type": "pc"},
+    {"id": "Node7", "type": "pc"},
+    {"id": "Node8", "type": "pc"},
+    {"id": "Node9", "type": "pc"},
+    {"id": "Node10", "type": "pc"},
+    {"id": "Node11", "type": "pc"},
+    {"id": "Node12", "type": "pc"}
+  ],
+  "edges": [
+    ["Center", "Node1"], ["Center", "Node2"], ["Center", "Node3"],
+    ["Center", "Node4"], ["Center", "Node5"], ["Center", "Node6"],
+    ["Center", "Node7"], ["Center", "Node8"], ["Center", "Node9"],
+    ["Center", "Node10"], ["Center", "Node11"], ["Center", "Node12"]
+  ],
+  "directed": false
+}

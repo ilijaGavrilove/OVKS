@@ -1,0 +1,30 @@
+{
+  "nodes": [
+    {"id": "Core", "type": "router"},
+    {"id": "Switch1", "type": "switch"},
+    {"id": "Switch2", "type": "switch"},
+    {"id": "Switch3", "type": "switch"},
+    {"id": "Switch4", "type": "switch"},
+    {"id": "PC1", "type": "pc"},
+    {"id": "PC2", "type": "pc"},
+    {"id": "PC3", "type": "pc"},
+    {"id": "PC4", "type": "pc"},
+    {"id": "PC5", "type": "pc"}
+  ],
+  "edges": [
+    ["Core", "Switch1"],
+    ["Core", "Switch2"],
+    ["Core", "Switch3"],
+    ["Core", "Switch4"],
+    ["Switch1", "Switch2"],
+    ["Switch2", "Switch3"],
+    ["Switch3", "Switch4"],
+    ["Switch4", "Switch1"],
+    ["Switch1", "PC1"],
+    ["Switch1", "PC2"],
+    ["Switch2", "PC3"],
+    ["Switch3", "PC4"],
+    ["Switch4", "PC5"]
+  ],
+  "directed": false
+}
