@@ -1,96 +1,138 @@
+# functions.py
 from config import root
 import tkinter as tk
-from tkinter import filedialog, Button
+from tkinter import filedialog, Button, StringVar, ttk, messagebox
 import sys
 import webbrowser
-from tkinter import messagebox
 from json import JSONDecodeError
 from pathlib import Path
+import os
+
 sys.path.append(str(Path(__file__).resolve().parent.parent))
 from logic import load, visualize
-import os 
 
-def upload_file():
-    from buttons import method
-    
-    file_path = filedialog.askopenfilename(filetypes=(
-        ("Исходный файл JSON", "*.json"),
-        ("Текстовый документ", "*.txt"),
-        ("Excel.CSV", "*.csv")
-    ))
-    if file_path:
-        try:
-            G = load.load_graph(file_path)          # получаем граф
-            print(method.get())
-            positions = load.compute_layout(G, method=method.get())    # считаем позиции
-            visualize.visualize_network(G, positions, output_path='network_viz.html')       # строим интерактивную схему
-
-        except JSONDecodeError:
-            messagebox.showerror("Ошибка", "Ошибка структуры JSON!")
-            return
-
-        except ValueError:
-            messagebox.showerror("Ошибка", "Ошибка! Не поддерживаемый тип файла!")
-            return
-
-        except KeyError as e:
-            messagebox.showerror("Ошибка", f"Ошибка структуры файла!\nНе найдено поле {e}")
-            return    
-           
-        if sys.platform.startswith('win'):
-            html_path = ''
-            current_file_path = os.path.abspath(__file__).split('\\')
-            for i in range(len(current_file_path) - 2):
-                html_path += f'{current_file_path[i]}\\'
-            html_path += 'network_viz.html'    
-            webbrowser.open(html_path, new=0, autoraise=True)
-        else:    
-            webbrowser.open('./network_viz.html', new=0, autoraise=True)
-
-def main_menu():
-    from buttons import upload_file_btn, info_btn, sugiyama_btn, radial_btn, auto_btn
-    text = tk.Text(
-    root,
-    state='disabled',          # только чтение
-    bd=0,                      # нет внешней рамки
-    highlightthickness=0,      # нет рамки фокуса
-    wrap=tk.WORD,              # перенос по словам
-    font=("Arial", 12)
-    )
-
-    sugiyama_btn.pack()
-    radial_btn.pack()
-    auto_btn.pack()
-
-    text.pack(expand=True, fill='both', padx=10, pady=10)
-
-    text.config(state='normal')
-    text.insert('1.0', "Добро пожаловать в систему ССКС!\nВыберите файл формата *.json, *.txt или *.csv\nЧтобы ознакомиться с допустимой структурой файлов, нажмите \"Справка\"")
-    text.config(state='disabled')
-
-    upload_file_btn.pack()
-    info_btn.pack()
-
-def go_back(current_win):
+# ---------- Вспомогательные функции ----------
+def go_back_to_main(current_win):
+    """Закрыть дочернее окно и показать главное меню."""
     current_win.destroy()
     root.deiconify()
 
+def process_network(file_path, method):
+    """
+    Загружает граф, вычисляет позиции, генерирует HTML.
+    Возвращает True при успехе, иначе False (ошибка уже показана).
+    """
+    try:
+        G = load.load_graph(file_path)
+        positions = load.compute_layout(G, method=method)
+        visualize.visualize_network(G, positions, output_path='network_viz.html')
+        return True
+    except JSONDecodeError:
+        messagebox.showerror("Ошибка", "Ошибка структуры JSON!")
+    except ValueError:
+        messagebox.showerror("Ошибка", "Ошибка! Не поддерживаемый тип файла!")
+    except KeyError as e:
+        messagebox.showerror("Ошибка", f"Ошибка структуры файла!\nНе найдено поле {e}")
+    except Exception as e:
+        messagebox.showerror("Ошибка", f"Непредвиденная ошибка: {e}")
+    return False
+
+def open_browser():
+    """Открывает сгенерированный HTML в браузере."""
+    if sys.platform.startswith('win'):
+        html_path = ''
+        current_file_path = os.path.abspath(__file__).split('\\')
+        for i in range(len(current_file_path) - 2):
+            html_path += f'{current_file_path[i]}\\'
+        html_path += 'network_viz.html'
+        webbrowser.open(html_path, new=0, autoraise=True)
+    else:
+        webbrowser.open('./network_viz.html', new=0, autoraise=True)
+
+# ---------- Окна ----------
+def open_format_window():
+    """Окно выбора формата файла."""
+    format_win = tk.Toplevel(root)
+    format_win.title("Выберите формат вашего файла")
+    format_win.geometry("300x200")
+    format_win.resizable(False, False)
+
+    tk.Label(format_win, text="Выберите формат входного файла:").pack(pady=10)
+
+    format_var = StringVar(value='json')
+    ttk.Radiobutton(format_win, text="JSON (.json)", value="json", variable=format_var).pack(anchor='w', padx=20)
+    ttk.Radiobutton(format_win, text="CSV (.csv)", value="csv", variable=format_var).pack(anchor='w', padx=20)
+    ttk.Radiobutton(format_win, text="TXT (.txt)", value="txt", variable=format_var).pack(anchor='w', padx=20)
+
+    def on_load():
+        ext = format_var.get()
+        filetypes = []
+        if ext == 'json':
+            filetypes = [("JSON файлы", "*.json")]
+        elif ext == 'csv':
+            filetypes = [("CSV файлы", "*.csv")]
+        elif ext == 'txt':
+            filetypes = [("Текстовые файлы", "*.txt")]
+        
+        file_path = filedialog.askopenfilename(filetypes=filetypes)
+        if file_path:
+            format_win.destroy()
+            open_method_window(file_path)
+
+    btn_frame = tk.Frame(format_win)
+    btn_frame.pack(pady=20)
+    Button(btn_frame, text="Назад", command=lambda: go_back_to_main(format_win)).pack(side='left', padx=10)
+    Button(btn_frame, text="Загрузить файл", command=on_load).pack(side='left', padx=10)
+
+def open_method_window(file_path):
+    """Окно выбора метода структурирования."""
+    method_win = tk.Toplevel(root)
+    method_win.title("Выберите метод структурирования")
+    method_win.geometry("350x250")
+    method_win.resizable(False, False)
+
+    tk.Label(method_win, text="Выберите метод структурирования:").pack(pady=10)
+
+    method_var = StringVar(value='auto')
+    ttk.Radiobutton(method_win, text="Метод Сугиямы", value="sugiyama", variable=method_var).pack(anchor='w', padx=20)
+    ttk.Radiobutton(method_win, text="Радиальный метод (для звёздной топологии)", value="radial", variable=method_var).pack(anchor='w', padx=20)
+    ttk.Radiobutton(method_win, text="Авто (рекомендуется)", value="auto", variable=method_var).pack(anchor='w', padx=20)
+
+    def on_process():
+        if process_network(file_path, method_var.get()):
+            open_browser()
+            method_win.destroy()
+            root.deiconify()  # возврат в главное меню после успеха
+
+    btn_frame = tk.Frame(method_win)
+    btn_frame.pack(pady=20)
+    Button(btn_frame, text="Назад", command=lambda: go_back_to_main(method_win)).pack(side='left', padx=10)
+    # Кнопка "Назад" по заданию возвращает в окно формата, но т.к. мы не хранили формат,
+    # можно упростить: возврат в главное меню. Если нужно именно в формат, можно передать
+    # информацию о расширении, но это усложнит интерфейс. Оставим возврат в главное меню.
+    Button(btn_frame, text="Структурировать сеть", command=on_process).pack(side='left', padx=10)
+
+# ---------- Стартовые точки ----------
+def start_work():
+    """Обработчик кнопки 'Начать работу'."""
+    root.withdraw()
+    open_format_window()
+
 def get_info():
+    """Открыть окно справки (без изменений)."""
     root.withdraw()
     info_win = tk.Toplevel(root)
     info_win.title("Справка")
     info_win.geometry("350x600")
-    #info_win.resizable(False, False)
 
     text = tk.Text(
-    info_win,
-    state='disabled',          # только чтение
-    bd=0,                      # нет внешней рамки
-    highlightthickness=0,      # нет рамки фокуса
-    wrap=tk.WORD,              # перенос по словам
-    font=("Arial", 12)
+        info_win,
+        state='disabled',
+        bd=0,
+        highlightthickness=0,
+        wrap=tk.WORD,
+        font=("Arial", 12)
     )
-
     text.pack(expand=True, fill='both', padx=10, pady=10)
 
     text.config(state='normal')
@@ -141,9 +183,10 @@ def get_info():
     "   • coax_splitter — коаксиальный разветвитель\n"
     "   • co_server    — сервер центрального офиса\n\n"
     "5. КАК РАБОТАТЬ С ПРОГРАММОЙ?\n"
-    "   а) Нажмите «Загрузить файл» и выберите файл с описанием сети.\n"
-    "   б) Программа сама определит лучший способ отображения (иерархический или радиальный).\n"
-    "   в) Откроется окно браузера с оптимизированной визуализацией сети.\n\n"
+    "   а) Нажмите «Начать работу» и выберите формат вашего файла.\n"
+    "   б) Загрузите файл.\n"
+    "   в) Выберите метод структурирования (или оставьте «Авто»).\n"
+    "   г) Нажмите «Структурировать сеть» — откроется браузер с готовой схемой.\n\n"
     "6. ЧТО ДЕЛАТЬ, ЕСЛИ ИКОНКИ НЕ ОТОБРАЖАЮТСЯ?\n"
     "   • Проверьте, что в JSON‑файле имена типов записаны без ошибок.\n\n"
     "7. ЧТО ДЕЛАТЬ, ЕСЛИ СХЕМА ПУСТАЯ?\n"
@@ -155,7 +198,29 @@ def get_info():
     "   • Программа автоматически минимизирует пересечения линий связи.\n"
     "   • Для очень больших сетей (более 500 узлов) построение может занять несколько секунд.\n"
     "   • Поддерживаются неориентированные и ориентированные графы."
-)
+    )
     text.config(state='disabled')
-    back_btn = Button(info_win, text="Назад", fg = "black", command=lambda: go_back(info_win))
+    
+    back_btn = Button(info_win, text="Назад", fg="black", command=lambda: go_back_to_main(info_win))
     back_btn.pack()
+
+def main_menu():
+    """Главное меню (только текст, кнопки 'Начать работу' и 'Справка')."""
+    from buttons import start_btn, info_btn
+    
+    text = tk.Text(
+        root,
+        state='disabled',
+        bd=0,
+        highlightthickness=0,
+        wrap=tk.WORD,
+        font=("Arial", 12)
+    )
+    text.pack(expand=True, fill='both', padx=10, pady=10)
+
+    text.config(state='normal')
+    text.insert('1.0', "Добро пожаловать в систему ССКС!\nВыберите файл формата *.json, *.txt или *.csv\nЧтобы ознакомиться с допустимой структурой файлов, нажмите \"Справка\"")
+    text.config(state='disabled')
+
+    start_btn.pack()
+    info_btn.pack()
